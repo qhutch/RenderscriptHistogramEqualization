@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Renderscript Example</string>
+    <string name="compute_time">Compute time :</string>
+</resources>
