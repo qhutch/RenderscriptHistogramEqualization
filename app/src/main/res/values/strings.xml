@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Renderscript Example</string>
     <string name="compute_time">Compute time :</string>
+    <string name="blur_compute_time">blur compute time :</string>
 </resources>

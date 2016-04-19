@@ -6,3 +6,6 @@
 .DS_Store
 /build
 /captures
+app/src/test/
+app/src/androidTest/java/com/example/q/renderscriptexample/ApplicationTest.java
+.idea/
