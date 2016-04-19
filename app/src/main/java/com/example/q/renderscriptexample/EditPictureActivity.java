@@ -103,8 +103,7 @@ public class EditPictureActivity extends AppCompatActivity {
         @Override
         protected Long doInBackground(Void... params) {
             Date begin = new Date();
-            //editedImage = RenderScriptImageEdit.blurBitmap(editedImage, 25.0f, EditPictureActivity.this);
-            editedImage = RenderScriptImageEdit.fastblur(editedImage, 1, 25);
+            editedImage = RenderScriptImageEdit.blurBitmap(editedImage, 25.0f, EditPictureActivity.this);
             Date end = new Date();
             long time = end.getTime()-begin.getTime();
             return time;
