@@ -3,10 +3,10 @@ package com.example.q.renderscriptexample;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -14,7 +14,6 @@ import android.widget.TextView;
 import com.example.q.renderscriptexample.utils.RenderScriptImageEdit;
 
 import java.io.IOException;
-import java.util.Date;
 
 public class EditPictureActivity extends AppCompatActivity {
     public final static String BITMAP_URI_EXTRA = "BITMAP_URI_EXTRA";
@@ -86,10 +85,10 @@ public class EditPictureActivity extends AppCompatActivity {
 
         @Override
         protected Long doInBackground(Void... params) {
-            Date begin = new Date();
+            long begin = System.currentTimeMillis();
             editedImage = RenderScriptImageEdit.histogramEqualization(image, EditPictureActivity.this);
-            Date end = new Date();
-            long time = end.getTime()-begin.getTime();
+            long end = System.currentTimeMillis();
+            long time = end-begin;
             return time;
         }
 
@@ -102,10 +101,10 @@ public class EditPictureActivity extends AppCompatActivity {
 
         @Override
         protected Long doInBackground(Void... params) {
-            Date begin = new Date();
+            long begin = System.currentTimeMillis();
             editedImage = RenderScriptImageEdit.blurBitmap(editedImage, 25.0f, EditPictureActivity.this);
-            Date end = new Date();
-            long time = end.getTime()-begin.getTime();
+            long end = System.currentTimeMillis();
+            long time = end-begin;
             return time;
         }
 

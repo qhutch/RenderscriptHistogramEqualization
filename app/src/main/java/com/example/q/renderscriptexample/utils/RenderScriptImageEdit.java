@@ -6,13 +6,9 @@ import android.support.v8.renderscript.Allocation;
 import android.support.v8.renderscript.Element;
 import android.support.v8.renderscript.RenderScript;
 import android.support.v8.renderscript.ScriptIntrinsicBlur;
-import android.support.v8.renderscript.ScriptIntrinsicResize;
 import android.support.v8.renderscript.Type;
 
-import com.example.q.renderscriptexample.ScriptC_RGBAtoYUVA;
-import com.example.q.renderscriptexample.ScriptC_YUVAtoRGBA;
-import com.example.q.renderscriptexample.ScriptC_yHisto;
-import com.example.q.renderscriptexample.ScriptC_yRemap;
+import com.example.q.renderscriptexample.ScriptC_histEq;
 
 /**
  * Created by q on 18/04/2016.
@@ -73,53 +69,28 @@ public final class RenderScriptImageEdit {
         //Create allocation with same type
         Allocation allocationB = Allocation.createTyped(rs, allocationA.getType());
 
-        //Convert from RGB to YUV colorspace
-        ScriptC_RGBAtoYUVA rgbAtoYUVA = new ScriptC_RGBAtoYUVA(rs);
-        rgbAtoYUVA.forEach_root(allocationA, allocationB);
-        rgbAtoYUVA.destroy();
+        //Create script from rs file.
+        ScriptC_histEq histEqScript = new ScriptC_histEq(rs);
 
-        //Compute Y histogram
-        int[] histogram = new int[256];
-        Allocation outHistogram = Allocation.createSized(rs, Element.I32(rs), histogram.length);
-        //Init allocation with zeros
-        outHistogram.copyFrom(histogram);
+        //Set size in script
+        histEqScript.set_size(width*height);
 
-        ScriptC_yHisto yHistogram = new ScriptC_yHisto(rs);
-        yHistogram.bind_gOutarray(outHistogram);
-        yHistogram.forEach_root(allocationB);
-        outHistogram.copyTo(histogram);
-        yHistogram.destroy();
-        outHistogram.destroy();
+        //Call the first kernel.
+        histEqScript.forEach_root(allocationA, allocationB);
 
-        //Compute new map for Y channel
-        float[] lut = new float[256];
-        float sum = 0;
-        for (int i = 0; i < 256; i++) {
-            sum += histogram[i];
-            lut[i] = sum / (width*height);
-        }
+        //Call the rs method to compute the remap array
+        histEqScript.invoke_createRemapArray();
 
-        //Remap Y channel
-        ScriptC_yRemap yRemap = new ScriptC_yRemap(rs);
-        Allocation map = Allocation.createSized(rs, Element.F32(rs), lut.length);
-        map.copyFrom(lut);
-        yRemap.bind_remapArray(map);
-        yRemap.forEach_root(allocationB, allocationA);
-        map.destroy();
-        yRemap.destroy();
-
-
-        //Convert back from YUV to RGB colorspace
-        ScriptC_YUVAtoRGBA yuvAtoRGBA = new ScriptC_YUVAtoRGBA(rs);
-        yuvAtoRGBA.forEach_root(allocationA, allocationB);
-        yuvAtoRGBA.destroy();
+        //Call the second kernel
+        histEqScript.forEach_remaptoRGB(allocationB, allocationA);
 
         //Copy script result into bitmap
-        allocationB.copyTo(res);
+        allocationA.copyTo(res);
 
         //Destroy everything to free memory
         allocationA.destroy();
         allocationB.destroy();
+        histEqScript.destroy();
         rs.destroy();
 
         return res;
